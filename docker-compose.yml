@@ -1,8 +1,0 @@
-vsftpd:
-  image: vimagick/vsftpd
-  net: host
-  volumes:
-    - ./vsftpd:/etc/vsftpd
-    - ./ftp:/var/lib/ftp
-  privileged: true
-  restart: always
