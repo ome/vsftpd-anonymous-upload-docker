@@ -1,166 +1,74 @@
-vsftpd
-======
+# vsftpd Anonymous Upload Docker Image
 
-[vsftpd][1] is a GPL licensed FTP server for UNIX systems, including Linux.
-It is secure and extremely fast. It is stable. Don't take my word for it, though.
+[vsftpd](https://security.appspot.com/vsftpd.html) is a GPL licensed FTP server for UNIX systems, including Linux.
 
-## Directory Tree
+This Docker image is configured to allow anonymous uploads only.
 
-```
-~/fig/vsftpd/
-├── docker-compose.yml
-├── ftp/
-│   └── README
-├── pam.d/
-│   └── vsftpd          => For Virutal User
-└── vsftpd/
-    ├── passwd          => For Virtual User
-    ├── vsftpd.conf
-    └── vsftpd.pem      => For SSL
-```
-
-## vsftpd/vsftpd.conf
+A very minimal level of access control is provided by listing allowed emails in `/etc/vsftpd.email_passwords`. `/var/lib/ftp/incoming` should be mounted as a volume, note permissions are important! xferlogs are to stdout.
 
 ```bash
-# DEFAULT SETTINGS
-allow_writeable_chroot=YES
-anonymous_enable=YES
-chroot_local_user=YES
-connect_from_port_20=YES
-dirmessage_enable=YES
-ftpd_banner=Welcome to VSFTPD service.
-listen=YES
-local_enable=YES
-no_anon_password=YES
-pasv_addr_resolve=YES
-pasv_address=my-ftp-server # <== PLEASE CHANGE THIS
-pasv_enable=YES
-pasv_max_port=30010
-pasv_min_port=30000
-port_enable=YES
-seccomp_sandbox=NO
-write_enable=YES
-xferlog_enable=YES
-
-# VIRTUAL USER SETTINGS
-#guest_enable=YES
-#guest_username=virtual
-#local_root=/home/virtual/$USER
-#pam_service_name=vsftpd
-#user_sub_token=$USER
-#virtual_use_local_privs=YES
-
-# SSL SETTINGS
-#force_local_data_ssl=YES
-#force_local_logins_ssl=YES
-#rsa_cert_file=/etc/vsftpd/vsftpd.pem
-#rsa_private_key_file=/etc/vsftpd/vsftpd.pem
-#ssl_enable=YES
+docker run -d --name vsftpd -p 20:20 -p 21:21 -p 21001-21100:21001-21100 -v /var/lib/ftp/incoming vsftpd-anonymous-upload
 ```
-
-> Please set `pasv_address` to your ftp server.
-
-## pam.d/vsftpd
-
-```
-auth required pam_pwdfile.so pwdfile=/etc/vsftpd/passwd
-account required pam_permit.so
-```
-
-## docker-compose.yml
-
-```yaml
-vsftpd:
-  image: vimagick/vsftpd
-  net: host
-# ports:
-#   - "20:20"
-#   - "21:21"
-#   - "30000-30010:30000-30010"
-  volumes:
-    - ./vsftpd:/etc/vsftpd
-    - ./ftp:/var/lib/ftp
-#   - ./pam.d/vsftpd:/etc/pam.d/vsftpd
-#   - ./virtual:/home/virtual
-  privileged: true
-  restart: always
-```
-
-> You can use `ports` instead of `net: host`.
-> Make sure these ports are allowed by firewall.
-
-## Server
-
-```bash
-$ cd ~/fig/vsftpd/
-$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout vsftpd/vsftpd.pem -out vsftpd/vsftpd.pem
-$ echo "tom:$(openssl passwd -1 uzia9Tu6)" >> vsftpd/passwd
-$ echo "ftp's home" > ./ftp/README
-$ docker-compose up -d
-$ docker exec -it vsftpd_vsftpd_1 sh
->>>
->>> adduser kev
-Changing password for kev
-New password: ******
-Retype password: ******
-Password for kev changed by root
->>> echo "kev's home" > ~kev/README
->>>
->>> mkdir ~virtual/tom
->>> echo "tom's home" > ~virtual/tom/README
->>> chown -R virutal:virtual ~virtual
->>>
->>> exit
-```
-
-> I added a local user called `kev`, a virtual user called `tom` here.  
-> You can edit [/etc/vsftpd/vsftpd.conf][2] to enable more [functions][3].
 
 ## Client
 
-You can login as `kev`(local user), `tom`(virtual user) or `ftp`(anonymous user).
+Login as `anonymous`, password `allowed@example.org`. You can upload files to incoming but listing is blocked.
 
-```bash
-$ ftp my-ftp-server
-Connected to my-ftp-server.
-220 Welcome to VSFTPD service.
-Name (my-ftp-server:kev): ftp
+```
+$ ftp anonymous@127.0.0.1
+Connected to 127.0.0.1.
+220 Place files in /incoming for upload.
+331 Please specify the password.
+Password:
 230 Login successful.
 Remote system type is UNIX.
 Using binary mode to transfer files.
 
-ftp> verbose off
-Verbose mode off.
+ftp> ls
+229 Entering Extended Passive Mode (|||21015|)
+150 Here comes the directory listing.
+d-wxrwx---    2 ftp      ftp          4096 Nov 29 17:06 incoming
+226 Directory send OK.
+
+ftp> put test.txt
+local: test.txt remote: test.txt
+229 Entering Extended Passive Mode (|||21052|)
+553 Could not create file.
+
+ftp> cd incoming
+250 Directory successfully changed.
 
 ftp> ls
--rw-r--r--    1 0        0               0 Jan 31 15:06 README.md
+229 Entering Extended Passive Mode (|||21018|)
+150 Here comes the directory listing.
+226 Transfer done (but failed to open directory).
 
-ftp> get README.md
-     0        0.00 KiB/s
+ftp> put test.txt
+local: test.txt remote: test.txt
+229 Entering Extended Passive Mode (|||21017|)
+150 Ok to send data.
+100% |***********************************|     6       53.26 KiB/s    00:00 ETA
+226 Transfer complete.
+6 bytes sent in 00:00 (6.59 KiB/s)
 
-ftp> !cat README.md
+ftp> ls
+229 Entering Extended Passive Mode (|||21026|)
+150 Here comes the directory listing.
+226 Transfer done (but failed to open directory).
 
-ftp> put README.md
-Permission denied.
+ftp> put test.txt
+local: test.txt remote: test.txt
+229 Entering Extended Passive Mode (|||21007|)
+553 Could not create file.
 
-ftp> bye
+ftp> rm test.txt
+550 Permission denied.
 ```
 
-Only local user or virtual user can upload file.
+## Maintainer
 
-```bash
-$ lftp
-lftp :~> set ssl:verify-certificate no
-lftp :~> open tom@my-ftp-server
-Password: ******
-lftp root@my-ftp-server:~> put README.md
-lftp root@my-ftp-server:~> ls
--rw-------    1 0        0             337 Jan 31 16:26 README.md
-lftp root@my-ftp-server:~> bye
-```
+ome-devel@lists.openmicroscopy.org.uk
 
-[1]: https://security.appspot.com/vsftpd.html
-[2]: http://vsftpd.beasts.org/vsftpd_conf.html
-[3]: https://wiki.archlinux.org/index.php/Very_Secure_FTP_Daemon
-[4]: https://github.com/tiwe-de/libpam-pwdfile
-[5]: http://linux.die.net/man/8/pam_listfile
+## Acknowledgements
+
+This image is based on https://github.com/vimagick/dockerfiles/tree/361bbf6e46665af72910542afaece71f27e46089/vsftpd
