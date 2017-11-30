@@ -1,5 +1,7 @@
 # vsftpd Anonymous Upload Docker Image
 
+[![Build Status](https://travis-ci.org/manics/vsftpd-anonymous-upload-docker.svg?branch=master)](https://travis-ci.org/manics/vsftpd-anonymous-upload-docker)
+
 [vsftpd](https://security.appspot.com/vsftpd.html) is a GPL licensed FTP server for UNIX systems, including Linux.
 
 This Docker image is configured to allow anonymous uploads only.
