@@ -6,13 +6,7 @@ FROM alpine
 MAINTAINER ome-devel@lists.openmicroscopy.org.uk
 
 RUN set -xe \
-    && apk add -U build-base \
-                  curl \
-                  tar \
-                  vsftpd \
-    && apk del build-base \
-               curl \
-               tar \
+    && apk add -U vsftpd \
     && passwd -l root \
     && adduser -D virtual \
     && rm -rf /var/cache/apk/*
