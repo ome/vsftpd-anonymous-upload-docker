@@ -10,6 +10,7 @@ sleep 5
 # Note ftp returns exit code 0 even if an error occurred
 ftp -n localhost 32021 << EOF
 user anonymous allowed@example.org
+passive
 cd incoming
 put test.sh
 quit
