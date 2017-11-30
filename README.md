@@ -4,10 +4,12 @@
 
 This Docker image is configured to allow anonymous uploads only.
 
-A very minimal level of access control is provided by listing allowed emails in `/etc/vsftpd.email_passwords`. `/var/lib/ftp/incoming` should be mounted as a volume, note permissions are important! xferlogs are to stdout.
+A very minimal level of access control is provided by listing allowed emails in `/etc/vsftpd.email_passwords`. `/var/lib/ftp/incoming` should be mounted as a volume, note permissions are important! xferlogs are sent to stdout.
+
+Passive FTP ports are configured to fit with the default Kubernetes NodePort range since FTP does not support port-forwarding between different ports.
 
 ```bash
-docker run -d --name vsftpd -p 20:20 -p 21:21 -p 21001-21100:21001-21100 -v /var/lib/ftp/incoming vsftpd-anonymous-upload
+docker run -d --name vsftpd -p 32021:21 -p 32022-32041:32022-32041 -v /var/lib/ftp/incoming vsftpd-anonymous-upload
 ```
 
 ## Client

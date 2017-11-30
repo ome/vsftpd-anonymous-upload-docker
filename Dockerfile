@@ -26,6 +26,6 @@ RUN install -d -m 2370 -o ftp -g root /var/lib/ftp/incoming
 VOLUME /var/lib/ftp/incoming
 WORKDIR /var/lib/ftp
 
-EXPOSE 20 21 21001-21100
+EXPOSE 21 32022-32041
 
 CMD ["vsftpd", "/etc/vsftpd/vsftpd.conf"]
