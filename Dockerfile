@@ -11,6 +11,7 @@ RUN set -xe \
     && rm -rf /var/cache/apk/*
 
 ADD vsftpd.conf vsftpd.email_passwords /etc/vsftpd/
+ADD banner.txt /etc/vsftpd.banner
 RUN ln -s /etc/vsftpd/vsftpd.email_passwords /etc/vsftpd.email_passwords
 # Log to docker stdout (vsftpd must be run as PID 1)
 RUN ln -sf /proc/1/fd/1 /var/log/vsftpd.log
