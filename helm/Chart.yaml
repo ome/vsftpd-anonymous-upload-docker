@@ -1,0 +1,4 @@
+apiVersion: v1
+description: vsftpd Anonymous Upload
+name: vsftpd-anonymous-upload
+version: 0.1.0

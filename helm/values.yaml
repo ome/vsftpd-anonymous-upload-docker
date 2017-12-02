@@ -1,0 +1,22 @@
+# Default values for helm.
+replicaCount: 1
+image:
+  repository: manics/vsftpd-anonymous-upload
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  name: ftp
+  type: ClusterIP
+  externalNodePort: 32021
+  internalPort: 21
+  # These must match vsftpd.conf pasv_min_port pasv_max_port
+  # TODO: Generate vsftpd.conf based on these ports
+  passMinPort: 32022
+  passMaxPort: 32041
+persistentVolume:
+  claimName:
+  storageClass:
+  setIncomingPermissions: false
+  incomingPermissions: "u+wx,u-r,g+rwxs,o-rwx"
+  incomingGroup: root
+resources: {}

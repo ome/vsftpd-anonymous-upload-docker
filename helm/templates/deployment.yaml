@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "helm.fullname" . }}
+  labels:
+    app: {{ template "helm.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "helm.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      {{- if and .Values.persistentVolume.claimName .Values.persistentVolume.setIncomingPermissions }}
+      initContainers:
+        - name: {{ .Chart.Name }}-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: "install -d -m {{ .Values.persistentVolume.incomingPermissions }} -o ftp -g {{ .Values.persistentVolume.incomingGroup }} /var/lib/ftp/incoming"
+          volumeMounts:
+            - name: {{ .Values.persistentVolume.claimName }}
+              mountPath: /var/lib/ftp/incoming
+            {{- if .Values.persistentVolume.storageClass }}
+              storageClass: {{ .Values.persistentVolume.storageClass }}
+            {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+          {{- range $e := until (sub .Values.service.passMaxPort .Values.service.passMinPort | add1 | int) }}
+            - containerPort: {{ add $.Values.service.passMinPort . }}
+          {{- end }}
+          livenessProbe:
+            tcpSocket:
+              port: 21
+          readinessProbe:
+            tcpSocket:
+              port: 21
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.persistentVolume.claimName }}
+      volumeMounts:
+        - name: {{ .Values.persistentVolume.claimName }}
+          mountPath: /var/lib/ftp/incoming
+        {{- if .Values.persistentVolume.storageClass }}
+          storageClass: {{ .Values.persistentVolume.storageClass }}
+        {{- end }}
+    {{- end }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
