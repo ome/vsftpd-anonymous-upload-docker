@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "helm.fullname" . }}
+  name: vsftpd-anon
   labels:
-    app: {{ template "helm.name" . }}
+    app: vsftpd-anon
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -13,20 +13,20 @@ spec:
     - port: {{ .Values.service.internalPort }}
       targetPort: {{ .Values.service.internalPort }}
       protocol: TCP
-      name: {{ .Values.service.name }}
-      {{- if and (contains "NodePort" .Values.service.type) .Values.service.externalNodePort }}
-      nodePort: {{ .Values.service.externalNodePort }}
+      name: ftp
+      {{- if and (contains "NodePort" .Values.service.type) .Values.service.externalPort }}
+      nodePort: {{ .Values.service.externalPort }}
       {{- end }}
-    {{- range $e := until (sub .Values.service.passMaxPort .Values.service.passMinPort | add1 | int) }}
-    {{- $port:= add $.Values.service.passMinPort . }}
+    {{- range $e := until (sub .Values.ftp.passivePorts.max .Values.ftp.passivePorts.min | add1 | int) }}
+    {{- $port:= add $.Values.ftp.passivePorts.min . }}
     - port: {{ $port }}
       targetPort: {{ $port }}
       protocol: TCP
-      name: {{ $.Values.service.name }}-pasv-{{ $port }}
+      name: ftp-pasv-{{ $port }}
       {{- if contains "NodePort" $.Values.service.type }}
       nodePort: {{ $port }}
       {{- end }}
     {{- end }}
   selector:
-    app: {{ template "helm.name" . }}
+    app: vsftpd-anon
     release: {{ .Release.Name }}
