@@ -17,8 +17,8 @@ spec:
       {{- if and (contains "NodePort" .Values.service.type) .Values.service.externalPort }}
       nodePort: {{ .Values.service.externalPort }}
       {{- end }}
-    {{- range $e := until (sub .Values.ftp.passivePorts.max .Values.ftp.passivePorts.min | add1 | int) }}
-    {{- $port:= add $.Values.ftp.passivePorts.min . }}
+    {{- range $e := until (sub .Values.ftp.passive.portMax .Values.ftp.passive.portMin | add1 | int) }}
+    {{- $port:= add $.Values.ftp.passive.portMin . }}
     - port: {{ $port }}
       targetPort: {{ $port }}
       protocol: TCP

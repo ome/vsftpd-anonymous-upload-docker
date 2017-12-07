@@ -2,6 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: vsftpd-anon
+  annotations:
+    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
   labels:
     app: vsftpd-anon
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
@@ -35,8 +37,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.internalPort }}
-          {{- range $e := until (sub .Values.ftp.passivePorts.max .Values.ftp.passivePorts.min | add1 | int) }}
-            - containerPort: {{ add $.Values.ftp.passivePorts.min . }}
+          {{- range $e := until (sub .Values.ftp.passive.portMax .Values.ftp.passive.portMin | add1 | int) }}
+            - containerPort: {{ add $.Values.ftp.passive.portMin . }}
           {{- end }}
           livenessProbe:
             tcpSocket:
@@ -44,15 +46,23 @@ spec:
           readinessProbe:
             tcpSocket:
               port: 21
-        {{- if .Values.ftp.pvc.enabled }}
           volumeMounts:
+            - name: vsftpd-config
+              mountPath: /etc/vsftpd
+        {{- if .Values.ftp.pvc.enabled }}
             - name: vsftp-incoming
               mountPath: /var/lib/ftp/incoming
         {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
-    {{- if .Values.ftp.pvc.enabled }}
       volumes:
+        - name: vsftpd-config
+          configMap:
+            name: vsftpd-config
+            items:
+              - key: vsftpd.conf
+                path: vsftpd.conf
+    {{- if .Values.ftp.pvc.enabled }}
         - name: vsftp-incoming
           persistentVolumeClaim:
             claimName: vsftp-incoming

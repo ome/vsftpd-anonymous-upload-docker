@@ -9,11 +9,11 @@ service:
   externalPort: 32021
   internalPort: 21
 ftp:
-  # These must match vsftpd.conf pasv_min_port pasv_max_port
-  # TODO: Generate vsftpd.conf based on these ports
-  passivePorts:
-    min: 32022
-    max: 32041
+  passive:
+    portMin: 32022
+    portMax: 32041
+    resolveAddress: false
+    address:
   pvc:
     enabled: false
     selector:
