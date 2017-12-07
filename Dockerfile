@@ -10,8 +10,8 @@ RUN set -xe \
     && passwd -l root \
     && rm -rf /var/cache/apk/*
 
-ADD vsftpd.conf /etc/vsftpd/vsftpd.conf
-ADD vsftpd.email_passwords /etc/vsftpd.email_passwords
+ADD vsftpd.conf vsftpd.email_passwords /etc/vsftpd/
+RUN ln -s /etc/vsftpd/vsftpd.email_passwords /etc/vsftpd.email_passwords
 # Log to docker stdout (vsftpd must be run as PID 1)
 RUN ln -sf /proc/1/fd/1 /var/log/vsftpd.log
 
