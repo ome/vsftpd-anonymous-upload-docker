@@ -48,7 +48,7 @@ spec:
               port: 21
           volumeMounts:
             - name: vsftpd-config
-              mountPath: /etc/vsftpd
+              mountPath: /etc/vsftpd/
         {{- if .Values.ftp.pvc.enabled }}
             - name: vsftp-incoming
               mountPath: /var/lib/ftp/incoming
@@ -59,9 +59,6 @@ spec:
         - name: vsftpd-config
           configMap:
             name: vsftpd-config
-            items:
-              - key: vsftpd.conf
-                path: vsftpd.conf
     {{- if .Values.ftp.pvc.enabled }}
         - name: vsftp-incoming
           persistentVolumeClaim:

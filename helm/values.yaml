@@ -24,4 +24,7 @@ ftp:
     setIncomingPermissions: false
     incomingPermissions: "u+wx,u-r,g+rwxs,o-rwx"
     incomingGroup: root
+  email_passwords:
+    allowed:
+    - allowed@example.org
 resources: {}

@@ -35,3 +35,7 @@ data:
     pasv_address={{ .Values.ftp.passive.address }}
     {{- end }}
     seccomp_sandbox=NO
+  vsftpd.email_passwords: |
+    {{- range .Values.ftp.email_passwords.allowed }}
+    {{ . }}
+    {{- end }}
