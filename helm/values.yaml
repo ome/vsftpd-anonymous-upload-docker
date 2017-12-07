@@ -27,4 +27,5 @@ ftp:
   email_passwords:
     allowed:
     - allowed@example.org
+  banner: "Place files in /incoming for upload"
 resources: {}

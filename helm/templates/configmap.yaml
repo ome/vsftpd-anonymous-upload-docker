@@ -3,6 +3,7 @@ apiVersion: v1
 metadata:
   name: vsftpd-config
 data:
+
   vsftpd.conf: |
     anonymous_enable=YES
     local_enable=NO
@@ -22,7 +23,7 @@ data:
     xferlog_file=/var/log/vsftpd.log
     xferlog_std_format=YES
     nopriv_user=ftp
-    ftpd_banner=Place files in /incoming for upload.
+    banner_file=/etc/vsftpd/vsftpd.banner
     listen=YES
     secure_email_list_enable=yes
     hide_file=incoming/*
@@ -35,7 +36,11 @@ data:
     pasv_address={{ .Values.ftp.passive.address }}
     {{- end }}
     seccomp_sandbox=NO
+
   vsftpd.email_passwords: |
     {{- range .Values.ftp.email_passwords.allowed }}
     {{ . }}
     {{- end }}
+
+  vsftpd.banner: |
+    {{ .Values.ftp.banner }}
