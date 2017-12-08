@@ -12,6 +12,7 @@ RUN set -xe \
 
 ADD vsftpd.conf /etc/vsftpd/vsftpd.conf
 ADD vsftpd.email_passwords /etc/vsftpd.email_passwords
+ADD banner.txt /etc/vsftpd.banner
 # Log to docker stdout (vsftpd must be run as PID 1)
 RUN ln -sf /proc/1/fd/1 /var/log/vsftpd.log
 
