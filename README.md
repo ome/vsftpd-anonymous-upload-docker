@@ -73,7 +73,7 @@ ftp> rm test.txt
 
 An experimental Kubernetes Helm chart is included (note the TODOs regarding configuration).
 ```
-helm upgrade --install vsftpd ./helm -f helm-example-config/config.yaml
+helm upgrade --install --namespace=vsftpd vsftpd ./helm -f helm-example-config/config.yaml -f <volume-config>.yaml
 ```
 
 
