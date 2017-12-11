@@ -2,7 +2,7 @@
 # Dockerfile for vsftpd
 #
 
-FROM alpine
+FROM alpine:3.7
 MAINTAINER ome-devel@lists.openmicroscopy.org.uk
 
 RUN set -xe \
