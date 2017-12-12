@@ -17,11 +17,12 @@ spec:
         app: vsftpd-anon
         release: {{ .Release.Name }}
     spec:
+
       {{- if and .Values.ftp.pvc.enabled .Values.ftp.pvc.setIncomingPermissions }}
       initContainers:
         - name: vsftpd-anon-init
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.ftp.image.repository }}:{{ .Values.ftp.image.tag }}"
+          imagePullPolicy: {{ .Values.ftp.image.pullPolicy }}
           command:
             - sh
             - -x
@@ -31,12 +32,14 @@ spec:
             - name: vsftp-incoming
               mountPath: /var/lib/ftp/incoming
       {{- end }}
+
       containers:
+
         - name: vsftpd-anon
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.ftp.image.repository }}:{{ .Values.ftp.image.tag }}"
+          imagePullPolicy: {{ .Values.ftp.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.internalPort }}
+            - containerPort: {{ .Values.ftp.service.internalPort }}
           {{- range $e := until (sub .Values.ftp.passive.portMax .Values.ftp.passive.portMin | add1 | int) }}
             - containerPort: {{ add $.Values.ftp.passive.portMin . }}
           {{- end }}
@@ -55,6 +58,29 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
+
+      {{- if and .Values.rsync.enabled .Values.ftp.pvc.enabled }}
+        - name: rsync-ssh
+          image: "{{ .Values.rsync.image.repository }}:{{ .Values.rsync.image.tag }}"
+          imagePullPolicy: {{ .Values.rsync.image.pullPolicy }}
+          ports:
+            - containerPort: 22
+          livenessProbe:
+            tcpSocket:
+              port: 22
+          readinessProbe:
+            tcpSocket:
+              port: 22
+          envFrom:
+            - configMapRef:
+                name: rsync-ssh-users
+          volumeMounts:
+            - name: vsftp-incoming
+              mountPath: /var/lib/ftp/incoming
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      {{- end }}
+
       volumes:
         - name: vsftpd-config
           configMap:

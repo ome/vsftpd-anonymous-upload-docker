@@ -1,14 +1,14 @@
 # Default values for helm.
 replicaCount: 1
-image:
-  repository: manics/vsftpd-anonymous-upload
-  tag: latest
-  pullPolicy: IfNotPresent
-service:
-  type: ClusterIP
-  externalPort: 32021
-  internalPort: 21
 ftp:
+  image:
+    repository: manics/vsftpd-anonymous-upload
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    externalPort: 32021
+    internalPort: 21
   passive:
     portMin: 32022
     portMax: 32041
@@ -23,9 +23,21 @@ ftp:
     storage:
     setIncomingPermissions: false
     incomingPermissions: "u+wx,u-r,g+rwxs,o-rwx"
-    incomingGroup: root
+    incomingGroup: 1000
   email_passwords:
     allowed:
     - allowed@example.org
   banner: "Place files in /incoming for upload"
 resources: {}
+
+rsync:
+  image:
+    repository: manics/rsync-ssh
+    tag: latest
+    pullPolicy: IfNotPresent
+  enabled: false
+  groupId: 1000
+  githubUsers:
+  service:
+    type: ClusterIP
+    externalPort: 32020

@@ -1,3 +1,4 @@
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -44,3 +45,14 @@ data:
 
   vsftpd.banner: |
     {{ .Values.ftp.banner }}
+
+---
+{{ if and .Values.rsync.enabled .Values.ftp.pvc.enabled }}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: rsync-ssh-users
+data:
+  GROUPID: "{{ .Values.rsync.groupId }}"
+  GITHUB_USERS: "{{- range $e := .Values.rsync.githubUsers }} {{ . }} {{- end }}
+{{- end }}"

@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -8,14 +9,14 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.ftp.service.type }}
   ports:
-    - port: {{ .Values.service.internalPort }}
-      targetPort: {{ .Values.service.internalPort }}
+    - port: {{ .Values.ftp.service.internalPort }}
+      targetPort: {{ .Values.ftp.service.internalPort }}
       protocol: TCP
       name: ftp
-      {{- if and (contains "NodePort" .Values.service.type) .Values.service.externalPort }}
-      nodePort: {{ .Values.service.externalPort }}
+      {{- if and (contains "NodePort" .Values.ftp.service.type) .Values.ftp.service.externalPort }}
+      nodePort: {{ .Values.ftp.service.externalPort }}
       {{- end }}
     {{- range $e := until (sub .Values.ftp.passive.portMax .Values.ftp.passive.portMin | add1 | int) }}
     {{- $port:= add $.Values.ftp.passive.portMin . }}
@@ -23,10 +24,36 @@ spec:
       targetPort: {{ $port }}
       protocol: TCP
       name: ftp-pasv-{{ $port }}
-      {{- if contains "NodePort" $.Values.service.type }}
+      {{- if contains "NodePort" $.Values.ftp.service.type }}
       nodePort: {{ $port }}
       {{- end }}
     {{- end }}
   selector:
     app: vsftpd-anon
     release: {{ .Release.Name }}
+
+---
+{{ if and .Values.rsync.enabled .Values.ftp.pvc.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: rsync-ssh
+  labels:
+    app: rsync-ssh
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.rsync.service.type }}
+  ports:
+    - port: 22
+      targetPort: 22
+      protocol: TCP
+      name: ssh
+      {{- if and (contains "NodePort" .Values.rsync.service.type) .Values.rsync.service.externalPort }}
+      nodePort: {{ .Values.rsync.service.externalPort }}
+      {{- end }}
+  selector:
+    app: vsftpd-anon
+    release: {{ .Release.Name }}
+{{- end }}
