@@ -65,12 +65,11 @@ spec:
           imagePullPolicy: {{ .Values.rsync.image.pullPolicy }}
           ports:
             - containerPort: 22
-          livenessProbe:
-            tcpSocket:
-              port: 22
           readinessProbe:
-            tcpSocket:
-              port: 22
+            exec:
+              command:
+              - pgrep
+              - sshd
           envFrom:
             - configMapRef:
                 name: rsync-ssh-users
