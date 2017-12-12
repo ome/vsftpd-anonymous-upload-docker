@@ -1,6 +1,6 @@
-service:
-  type: NodePort
 ftp:
+  service:
+    type: NodePort
   passive:
     resolveAddress: true
     address: ftp.example.org
