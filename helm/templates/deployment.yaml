@@ -1,0 +1,70 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: vsftpd-anon
+  annotations:
+    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+  labels:
+    app: vsftpd-anon
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: vsftpd-anon
+        release: {{ .Release.Name }}
+    spec:
+      {{- if and .Values.ftp.pvc.enabled .Values.ftp.pvc.setIncomingPermissions }}
+      initContainers:
+        - name: vsftpd-anon-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -x
+            - -c
+            - install -d -m {{ .Values.ftp.pvc.incomingPermissions }} -o ftp -g {{ .Values.ftp.pvc.incomingGroup }} /var/lib/ftp/incoming
+          volumeMounts:
+            - name: vsftp-incoming
+              mountPath: /var/lib/ftp/incoming
+      {{- end }}
+      containers:
+        - name: vsftpd-anon
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+          {{- range $e := until (sub .Values.ftp.passive.portMax .Values.ftp.passive.portMin | add1 | int) }}
+            - containerPort: {{ add $.Values.ftp.passive.portMin . }}
+          {{- end }}
+          livenessProbe:
+            tcpSocket:
+              port: 21
+          readinessProbe:
+            tcpSocket:
+              port: 21
+          volumeMounts:
+            - name: vsftpd-config
+              mountPath: /etc/vsftpd/
+        {{- if .Values.ftp.pvc.enabled }}
+            - name: vsftp-incoming
+              mountPath: /var/lib/ftp/incoming
+        {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+        - name: vsftpd-config
+          configMap:
+            name: vsftpd-config
+    {{- if .Values.ftp.pvc.enabled }}
+        - name: vsftp-incoming
+          persistentVolumeClaim:
+            claimName: vsftp-incoming
+    {{- end }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

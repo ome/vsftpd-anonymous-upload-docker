@@ -1,0 +1,13 @@
+service:
+  type: NodePort
+ftp:
+  passive:
+    resolveAddress: true
+    address: ftp.example.org
+  pvc:
+    enabled: true
+    setIncomingPermissions: true
+  email_passwords:
+    allowed:
+    - allowed@example.org
+  banner: "Hello and welcome!"

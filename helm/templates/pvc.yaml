@@ -1,0 +1,25 @@
+{{ if .Values.ftp.pvc.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: vsftp-incoming
+  {{- if .Values.ftp.pvc.annotations }}
+  annotations:
+{{ toYaml .Values.ftp.pvc.annotations | indent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ftp.pvc.selector }}
+  selector:
+{{ toYaml .Values.ftp.pvc.selector | indent 4 }}
+  {{- end }}
+  {{- if typeIs "string" .Values.ftp.pvc.storageClassName }}
+  storageClassName: {{ .Values.ftp.pvc.storageClassName | quote }}
+  {{- end }}
+  accessModes:
+    {{- range .Values.ftp.pvc.accessModes }}
+    - {{ . }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.ftp.pvc.storage | quote }}
+{{- end }}

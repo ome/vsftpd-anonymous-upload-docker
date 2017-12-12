@@ -1,0 +1,19 @@
+# An example of using an NFS share as a persistent volume
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: vsftpd-incoming-pv
+  labels:
+    volumename: vsftpd-incoming-pv
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Mi # This is ignored by NFS
+  accessModes:
+    - ReadOnlyMany
+    - ReadWriteOnce
+    - ReadWriteMany
+  nfs:
+    server: 10.0.0.8
+    path: /data/ftp/incoming
