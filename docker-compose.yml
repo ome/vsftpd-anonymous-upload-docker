@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  ftpserver:
+    build: .
+    ports:
+      - "32021:32021"
+  ftpclient:
+    build: lftp
+    tty: true
+    depends_on:
+      - "ftpserver"
