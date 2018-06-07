@@ -3,8 +3,6 @@ version: "3"
 services:
   ftpserver:
     build: .
-    ports:
-      - "32021:32021"
     restart: on-failure
   ftpclient:
     build: lftp
