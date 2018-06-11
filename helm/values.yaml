@@ -11,7 +11,7 @@ ftp:
     internalPort: 21
   passive:
     portMin: 32022
-    portMax: 32041
+    portMax: 32222
     resolveAddress: false
     address:
   pvc:

@@ -19,6 +19,6 @@ RUN install -d -m u+wx,u-r,g+rwxs,o-rwx -o ftp -g root /var/lib/ftp/incoming
 VOLUME /var/lib/ftp/incoming
 WORKDIR /var/lib/ftp
 
-EXPOSE 21 32022-32041
+EXPOSE 21 32022-32222
 
 CMD ["vsftpd", "/etc/vsftpd/vsftpd.conf"]
