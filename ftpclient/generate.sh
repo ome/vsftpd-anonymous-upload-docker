@@ -1,6 +1,6 @@
 #! /bin/sh
-N=${N:-10000}
-THREADS=${THREADS:-10}
+N=${N:-1000}
+THREADS=${THREADS:-2}
 USER=${USER:-anonymous}
 PASS=${PASS:-allowed@example.org}
 SERVER=${SERVER:-ftpserver}
