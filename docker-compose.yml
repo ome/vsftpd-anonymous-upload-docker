@@ -10,3 +10,4 @@ services:
     tty: true
     depends_on:
       - "ftpserver"
+    restart: on-failure
