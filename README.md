@@ -1,6 +1,6 @@
 # vsftpd Anonymous Upload Docker Image
 
-[![Build Status](https://travis-ci.org/manics/vsftpd-anonymous-upload-docker.svg?branch=master)](https://travis-ci.org/manics/vsftpd-anonymous-upload-docker)
+[![Actions Status](https://github.com/ome/vsftpd-anonymous-upload-docker/workflows/Build/badge.svg)](https://github.com/ome/vsftpd-anonymous-upload-docker/actions)
 
 [vsftpd](https://security.appspot.com/vsftpd.html) is a GPL licensed FTP server for UNIX systems, including Linux.
 
@@ -11,7 +11,7 @@ A very minimal level of access control is provided by listing allowed emails in 
 Passive FTP ports are configured to fit with the default Kubernetes NodePort range since FTP does not support port-forwarding between different ports.
 
 ```bash
-docker run -d --name vsftpd -p 32021:21 -p 32022-32041:32022-32041 -v /var/lib/ftp/incoming vsftpd-anonymous-upload
+docker run -d --name vsftpd -p 21:21 -p 32022-32041:32022-32041 -v /var/lib/ftp/incoming vsftpd-anonymous-upload
 ```
 
 ## Client

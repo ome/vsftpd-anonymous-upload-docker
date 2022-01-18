@@ -7,7 +7,7 @@ ftp:
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
-    externalPort: 32021
+    externalPort: 21
     internalPort: 21
   passive:
     portMin: 32022
