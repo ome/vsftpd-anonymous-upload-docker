@@ -20,4 +20,5 @@ WORKDIR /var/lib/ftp
 
 EXPOSE 21 32022-32041
 
-CMD ["vsftpd", "/etc/vsftpd/vsftpd.conf"]
+COPY run-vsftpd.sh  /usr/sbin
+CMD ["/usr/sbin/run-vsftpd.sh"]
