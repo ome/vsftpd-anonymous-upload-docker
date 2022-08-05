@@ -54,5 +54,5 @@ metadata:
   name: rsync-ssh-users
 data:
   GROUPID: "{{ .Values.rsync.groupId }}"
-  GITHUB_USERS: "{{- range $e := .Values.rsync.githubUsers }} {{ . }} {{- end }}
-{{- end }}"
+  GITHUB_USERS: "{{- range $e := .Values.rsync.githubUsers }} {{ . }} {{- end }}"
+{{- end }}
